@@ -1,6 +1,6 @@
 {
   "name": "2d-bounding-box",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A simple 2d bounding box utility. Intersections collisions, distance calculations. for use in games",
   "main": "index.js",
   "scripts": {

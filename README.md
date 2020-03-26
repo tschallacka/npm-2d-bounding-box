@@ -1,8 +1,7 @@
 ### simple 2d bounding box library
 
-Currently this is unpublished on npm as this is still not finished.
-
-If you found this by google, congrats, you can be an alpha tester.
+Note, this is still in alpha and may contain lots and lots of bugs.
+Please make an issue if you encounter a bug.
 
 To use it:
 
