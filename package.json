@@ -1,7 +1,7 @@
 {
-  "name": "2d-bounding-box",
+  "name": "@tschallacka/2d-bounding-box",
   "version": "0.0.1",
-  "description": "A simple 2d bounding box utility. Intersections collisions, distance calculations. for use in games",
+  "description": "A simple 2d bounding box class. Intersections collisions, for use in 2d games",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
