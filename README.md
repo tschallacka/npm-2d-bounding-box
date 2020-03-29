@@ -8,7 +8,7 @@ To use it:
 ```javascript
 let BoundingBox = require('2d-bounding-box');
 
-let bb_create = new BoundingBox( min_x, min_y, max_x, max_y, [origin_type]);
+let bb_create = new BoundingBox( min_x, min_y, max_x, max_y, [origin_type], [rotation_in_degrees]);
 ```
 
 Sometimes you already have an entity with a certain width and height, and you wish
@@ -20,7 +20,18 @@ entity is. Is it smack in the middle of the entity that decides the position
 or anywhere around the entity, bottom left for example. 
 
 ```javascript
-let bb_from_entity = BoundingBox.create( origin_type, position_x, position_y, width, height);
+let bb_from_entity = BoundingBox.create( origin_type, position_x, position_y, width, height, [rotation_in_degrees]);
+```
+
+To check if a BoundingBox intersects another bounding box, use the intersects method.
+
+```javascript
+let bb_from_entity = BoundingBox.create( origin_type, position_x, position_y, width, height, [rotation_in_degrees]);
+let bb_other_entity = BoundingBox.create( origin_type, position_x, position_y, width, height, [rotation_in_degrees]);
+
+if(bb_from_entity.intersects(bb_other_entity)) {
+    // whatever to do on collsion.
+}
 ```
 
 For the origin type there are 9 possible options:
@@ -39,6 +50,12 @@ BoundingBox.ORIGIN_RIGHT_CENTER;
 
 If you need more options, you will have to calculate the offsets yourself and
 instantiate the bounding box via the `new BoundingBox(...)` method.
+
+**design choice**
+
+This bounding box is intended to be newly generated on every gameloop iteration.
+Do not store this in some fixed variable that survives many game loops as this may lead
+to memory issues. Generate, compare, dispose. These are disposable objects.
 
 Please see the [demo_basic_bb.html](demo/demo_basic_bb.html) file in the demo directory for examples.
 
