@@ -9,23 +9,26 @@
     	Press any of the origin buttons to change the origin calculation
     	method of the current player.
 	</p>
-	<div>
+	<div class="game_field">
 		<canvas id="world" width=640 height=480>
 		</canvas>
 	</div>
-	<a class="switch_player">
-		switch player
-	</a>
-	<div class="origin_container">
-		<a class="origin_change">ORIGIN_CENTER</a>
-		<a class="origin_change">ORIGIN_LEFT_BOTTOM</a>
-		<a class="origin_change">ORIGIN_RIGHT_BOTTOM</a>
-		<a class="origin_change">ORIGIN_CENTER_BOTTOM</a>
-		<a class="origin_change">ORIGIN_LEFT_CENTER</a>
-		<a class="origin_change">ORIGIN_LEFT_TOP</a>
-		<a class="origin_change">ORIGIN_CENTER_TOP</a>
-		<a class="origin_change">ORIGIN_RIGHT_TOP</a>
-		<a class="origin_change">ORIGIN_RIGHT_CENTER</a>
+	<div class="control_container">
+		<a class="switch_player">
+			switch player
+		</a>
+		<input type="range" min="0" max="360" id="rotation_setting" class="rotation_setting">
+		<div class="origin_container">
+			<a class="origin_change">ORIGIN_CENTER</a>
+			<a class="origin_change">ORIGIN_LEFT_BOTTOM</a>
+			<a class="origin_change">ORIGIN_RIGHT_BOTTOM</a>
+			<a class="origin_change">ORIGIN_CENTER_BOTTOM</a>
+			<a class="origin_change">ORIGIN_LEFT_CENTER</a>
+			<a class="origin_change">ORIGIN_LEFT_TOP</a>
+			<a class="origin_change">ORIGIN_CENTER_TOP</a>
+			<a class="origin_change">ORIGIN_RIGHT_TOP</a>
+			<a class="origin_change">ORIGIN_RIGHT_CENTER</a>
+		</div>
 	</div>
 	<script type="text/javascript" src="js/test_basic.demo.min.js"></script>
 </html>

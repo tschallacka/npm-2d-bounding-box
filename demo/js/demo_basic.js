@@ -11,8 +11,8 @@ var nCol = 8;    // default number of columns
 w /= nCol;            // width of a block
 h /= nRow;            // height of a block
 
-var player1 = {x: 3, y:3, origin_type: BoundingBox.ORIGIN_CENTER};
-var player2 = {x: 5, y:6, origin_type: BoundingBox.ORIGIN_CENTER};
+var player1 = {x: 3, y:3, origin_type: BoundingBox.ORIGIN_CENTER, rotation: 0};
+var player2 = {x: 5, y:6, origin_type: BoundingBox.ORIGIN_CENTER, rotation: 0};
 let player = player1;
 
 
@@ -40,11 +40,12 @@ function drawCheckeredBackground() {
 
 function drawPlayer(posX, posY, color) 
 {
+    
     ctx.beginPath();
     posX = (posX * w) + (w / 2);
     posY = (posY * h) + (h / 2);
     var radius = w/4;
-
+    
     ctx.beginPath();
     ctx.arc(posX, posY, radius, 0, 2 * Math.PI, false);
     ctx.fillStyle = color;
@@ -58,14 +59,20 @@ function drawPlayer(posX, posY, color)
     ctx.strokeStyle = '#003300';
     ctx.stroke();
 }
-
-document.body.addEventListener("click", function (event) {
+document.body.addEventListener('input', (e) => {
+    let classlist = event.target.classList;
+    if (classlist.contains("rotation_setting")) {
+        player.rotation = e.target.value;
+    }
+});
+document.body.addEventListener("click",  (event) => {
     let classlist = event.target.classList;
     if (classlist.contains("origin_change")) {
         player.origin_type = BoundingBox[event.target.innerText];
     }
     if(classlist.contains('switch_player')) {
         player = (player === player1 ? player2 : player1);
+        document.getElementById('rotation_setting').value = player.rotation;
     }
     
   });
@@ -100,23 +107,18 @@ window.addEventListener('keydown', (e) => {
 
 function getBB(player) 
 {
-    return BoundingBox.create(player.origin_type, player.x+0.5, player.y-0.5, 1, 1);;
+    return BoundingBox.create(player.origin_type, player.x+0.5, player.y-0.5, 0.5, 0.5, player.rotation);;
 }
 
 function drawBB(player, other) 
 {
-    ctx.beginPath();
+
     let bb = getBB(player);
     let bb_other = getBB(other);
-    //console.log(bb);
-    ctx.rect(bb.getMinX() * w, bb.getMaxY() * h, bb.getWidth() * w, bb.getHeight()*h);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = 'red';
-    ctx.stroke();   
-    if(bb.intersects(bb_other)) {
-        ctx.fillStyle = 'goldenrod';
-        ctx.fill();
-    }
+    let intersects = bb.intersects(bb_other);
+    bb.drawOnCanvas(ctx, w, h ,intersects, 1, 'red',  'goldenrod');
+    bb_other.drawOnCanvas(ctx, w, h, intersects, 1, 'red', 'goldenrod');
+    
 }
 
 function paint() {

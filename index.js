@@ -1,4 +1,4 @@
-let Vector2D = require('vector2d');
+let Vector2D = require('vector2d').Vector;
 let Box = require('./shape/box');
 let minmax = require('./math/minmax');
 
@@ -10,15 +10,63 @@ class BoundingBox
         this.max_x = min_x > max_x ? min_x : max_x;
         this.min_y = min_y < max_y ? min_y : max_y;
         this.max_y = min_y > max_y ? min_y : max_y;
-        this.origin = origin ? origin : BoundingBox.ORIGIN_CENTER;
-		this.degrees = degrees ? degrees % 360 : 0;
+        this.degrees = degrees ? degrees % 360 : 0;
+       
+        if(origin instanceof Vector2D) {
+            this.setOriginVector(origin);
+            this.origin = BoundingBox.ORIGIN_MANUAL;
+        }
+        else {
+            this.origin = origin ? origin : BoundingBox.ORIGIN_CENTER;
+    		switch(origin) {
+                case BoundingBox.ORIGIN_CENTER:
+                    this.setOriginVector(new Vector2D(this.min_x + ((this.max_x - this.min_x) / 2),this.min_y + ((this.max_y - this.min_y) / 2)));
+                    break;
+                case BoundingBox.ORIGIN_LEFT_BOTTOM:
+                    this.setOriginVector(new Vector2D(this.min_x, this.min_y));
+                    break;
+                case BoundingBox.ORIGIN_CENTER_BOTTOM:
+                    this.setOriginVector(new Vector2D(this.min_x + ((this.max_x - this.min_x) / 2), this.min_y));
+                    break;
+                case BoundingBox.ORIGIN_RIGHT_BOTTOM:
+                    this.setOriginVector(new Vector2D(this.max_x, this.min_y + ((this.max_y - this.min_y) / 2)));
+                    break;
+                case BoundingBox.ORIGIN_LEFT_CENTER:
+                    this.setOriginVector(new Vector2D(this.min_x, this.min_y + ((this.max_y - this.min_y) / 2)));
+                    break;
+                case BoundingBox.ORIGIN_LEFT_TOP:
+                    this.setOriginVector(new Vector2D(this.min_x, this.max_y));
+                    break;                
+                case BoundingBox.ORIGIN_CENTER_TOP:
+                    this.setOriginVector(new Vector2D(this.min_x + ((this.max_x - this.min_x) / 2), this.max_y));
+                    break;                
+                case BoundingBox.ORIGIN_RIGHT_TOP:
+                    this.setOriginVector(new Vector2D(this.max_x, this.max_y));
+                    break;
+                case BoundingBox.ORIGIN_RIGHT_CENTER:
+                    this.setOriginVector(new Vector2D(this.max_x, this.min_y + ((this.max_y - this.min_y) / 2)));
+                    break;
+            }
+        }
 		
     }
 
-    static create(origin_location, pos_x, pos_y, width, height) 
+    static create(origin_location, pos_x, pos_y, width, height, rotation_in_degrees) 
     {
+        if(origin_location instanceof Vector2D) {
+            let x_difference = pos_x - origin_location.getX();
+            let y_difference = pos_y - origin_location.getY();
+            let new_width = width - x_difference;
+            let new_height = height - y_difference;
+            
+            return new BoundingBox(pos_x - x_difference, pos_y - y_difference,
+                                   pos_x + new_width, pos_y + new_height,
+                                   BoundingBox.ORIGIN_MANUAL, rotation)
+            
+        }
         if(isNaN(origin_location) || origin_location > 9 || origin_location < 1) {
-            throw new Error("Invalid location of origin specific. use BoundingBox.ORIGIN_CENTER or one of the other 8 options");
+            throw new Error("Invalid location of origin specified. " +
+            		        "use BoundingBox.ORIGIN_CENTER or one of the other 8 options");
         }
         
         let half_width = width / 2;
@@ -26,6 +74,7 @@ class BoundingBox
         
         switch(origin_location) {
             case BoundingBox.ORIGIN_CENTER:
+                console.log('hey');
                 return new BoundingBox(pos_x - half_width, pos_y - half_height,
                                        pos_x + half_width, pos_y + half_height, 
                                        origin_location);
@@ -116,7 +165,7 @@ class BoundingBox
     intersects(bounding_box) 
     {
         this.check(bounding_box);
-		if(!this.getDegrees() && !bounding_box.getDegrees()) {
+		if((!this.getDegrees() && !bounding_box.getDegrees()) || (this.getDegrees() === 180 && bounding_box.getDegrees() === 180)) {
 	        return this.intersects_basic(bounding_box);
 		}
     }
@@ -152,14 +201,60 @@ class BoundingBox
 	
 	getBox() 
 	{
-		return new Box(...this.getPoints());
+		let box = new Box(...this.getPoints());
+		if(this.degrees && this.degrees > 0 || this.degrees < 0) {
+		    box = box.rotate(this.getOriginVector(), this.degrees)
+		}
+		return box;
 	}
 	
+	/**
+	 * @returns Vector2D location of origin point
+	 */
+	getOriginVector() 
+	{
+	    return this.origin_location;
+	}
 	
+	/**
+	 * @param origin_vector Vector2D
+	 */
+	setOriginVector(origin_vector) 
+	{
+	    if(!(origin_vector instanceof Vector2D)) {
+	        throw new Error("Please provide npm vector2d.Vector")
+	    }
+	    this.origin_location = origin_vector;
+	}
 	
 	getNormals() 
 	{
 		return this.getBox().getNormals();
+	}
+	getRotatedPoints() 
+	{
+	    return this.getBox().rotate(this.getOriginVector(), this.degrees).getPoints();
+	}
+	
+	drawOnCanvas(ctx, multiplier_width, multiplier_height, boolean_fill, line_width, line_color, fill_color) 
+	{
+	    let points = this.getRotatedPoints();
+	    
+	    ctx.beginPath();
+	    ctx.lineWidth = line_width ? line_width : 1;
+        ctx.strokeStyle = line_color ? line_color : 'red';
+	    let start = points.shift();
+	    console.log(start.getX(), start.getY(), start.getX() * multiplier_width, start.getY() * multiplier_height, multiplier_width, multiplier_height);
+	    ctx.moveTo(start.getX() * multiplier_width, start.getY() * multiplier_height);
+	    points.forEach((vector, i) => {
+	        ctx.lineTo(vector.getX() * multiplier_width, vector.getY() * multiplier_height);
+	    });
+	    ctx.lineTo(start.getX() * multiplier_width, start.getY() * multiplier_height);
+	    if(boolean_fill) {
+	        ctx.fillStyle = fill_color ? fill_color : 'goldenrod';
+	        ctx.fill();
+	    }        
+        ctx.stroke();
 	}
 	
 	getPoints() 
@@ -172,6 +267,7 @@ class BoundingBox
 		];
 		return points;
 	}    
+	
     expand(bounding_box) 
     {
         this.check(bounding_box);
@@ -205,5 +301,6 @@ BoundingBox.ORIGIN_LEFT_TOP = 6;
 BoundingBox.ORIGIN_CENTER_TOP = 7;
 BoundingBox.ORIGIN_RIGHT_TOP = 8;
 BoundingBox.ORIGIN_RIGHT_CENTER = 9;
+BoundingBox.ORIGIN_MANUAL = 10;
 
 module.exports = BoundingBox;
