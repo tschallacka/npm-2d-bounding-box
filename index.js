@@ -74,7 +74,6 @@ class BoundingBox
         
         switch(origin_location) {
             case BoundingBox.ORIGIN_CENTER:
-                console.log('hey');
                 return new BoundingBox(pos_x - half_width, pos_y - half_height,
                                        pos_x + half_width, pos_y + half_height, 
                                        origin_location);
@@ -244,7 +243,7 @@ class BoundingBox
 	    ctx.lineWidth = line_width ? line_width : 1;
         ctx.strokeStyle = line_color ? line_color : 'red';
 	    let start = points.shift();
-	    console.log(start.getX(), start.getY(), start.getX() * multiplier_width, start.getY() * multiplier_height, multiplier_width, multiplier_height);
+	    
 	    ctx.moveTo(start.getX() * multiplier_width, start.getY() * multiplier_height);
 	    points.forEach((vector, i) => {
 	        ctx.lineTo(vector.getX() * multiplier_width, vector.getY() * multiplier_height);

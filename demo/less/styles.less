@@ -38,3 +38,77 @@ a {
     margin-top: 50px;
       
 }
+@block_height : 25px;
+@block_offset_top : 4px;
+@block_offset_right : 2px;
+@pixel_height : 3px;
+.origin_change {
+    padding-right: 35px;
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+    &::after,
+    &::before {
+        z-index: 2;
+        content: " ";
+        display: block;
+        width: @block_height;
+        height: @block_height;
+        position: absolute;
+        right: @block_offset_right;
+        top: @block_offset_top;
+        border: 2px solid darkgray;
+    }
+    &::before {
+        background-color: darkred;
+        border-width: 0px;
+        z-index: 3;
+        animation-name: pulsing_pointer;
+        animation-duration: 1.5s;
+        animation-timing-function: ease;
+        animation-iteration-count: infinite;
+        height: @pixel_height;
+        width: @pixel_height;
+    }
+    &.ORIGIN_CENTER::before {
+        top: calc((@block_offset_top + (@block_height / 2)) + (@pixel_height / 2));
+        right: calc((@block_offset_right + (@block_height / 2)) + (@pixel_height / 2));
+    }
+    &.ORIGIN_LEFT_BOTTOM::before {
+        top: calc(@block_offset_top + @block_height + (@pixel_height / 2));
+        right: calc(@block_offset_right + @block_height + (@pixel_height / 2));
+    }
+    &.ORIGIN_RIGHT_BOTTOM::before {
+        top: calc(@block_offset_top + @block_height + (@pixel_height / 2));
+        right: calc(@block_offset_right + (@pixel_height / 2));
+    }
+    &.ORIGIN_CENTER_BOTTOM::before {
+        top: calc(@block_offset_top + @block_height + (@pixel_height / 2));
+        right: calc((@block_offset_right + (@block_height / 2)) + (@pixel_height / 2));
+    }
+    &.ORIGIN_LEFT_CENTER::before {
+        top: calc((@block_offset_top + (@block_height / 2)) + (@pixel_height / 2));
+        right: calc(@block_offset_right + @block_height + (@pixel_height / 2));
+    }
+    &.ORIGIN_LEFT_TOP::before {
+        top: calc(@block_offset_top + (@pixel_height / 2));
+        right: calc(@block_offset_right + @block_height + (@pixel_height / 2));
+    }
+    &.ORIGIN_CENTER_TOP::before {
+        top: calc(@block_offset_top + (@pixel_height / 2));
+        right: calc((@block_offset_right + (@block_height / 2)) + (@pixel_height / 2));
+    }
+    &.ORIGIN_RIGHT_TOP::before {
+        top: calc(@block_offset_top  + (@pixel_height / 2));
+        right: calc(@block_offset_right  + (@pixel_height / 2));
+    }
+    &.ORIGIN_RIGHT_CENTER::before {
+        top: calc((@block_offset_top + (@block_height / 2)) + (@pixel_height / 2));
+        right: calc(@block_offset_right + (@pixel_height / 2));
+    }
+}
+@keyframes pulsing_pointer {
+  0% {width: @pixel_height;height: @pixel_height;margin-right: 0px;margin-top:0px;}
+  50% {width: calc(@pixel_height + 2px);height:calc(@pixel_height + 2px);margin-right: -1px;margin-top:-1px;}
+  100% {width: @pixel_height;height: @pixel_height;margin-right: 0px;margin-top:0px;}
+}

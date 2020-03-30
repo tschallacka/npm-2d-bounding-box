@@ -38,27 +38,7 @@ function drawCheckeredBackground() {
     ctx.fill();
 }
 
-function drawPlayer(posX, posY, color) 
-{
-    
-    ctx.beginPath();
-    posX = (posX * w) + (w / 2);
-    posY = (posY * h) + (h / 2);
-    var radius = w/4;
-    
-    ctx.beginPath();
-    ctx.arc(posX, posY, radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(posX, posY, radius / 10, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'red';
-    ctx.fill();
-    
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#003300';
-    ctx.stroke();
-}
+
 document.body.addEventListener('input', (e) => {
     let classlist = event.target.classList;
     if (classlist.contains("rotation_setting")) {
@@ -107,7 +87,27 @@ window.addEventListener('keydown', (e) => {
 
 function getBB(player) 
 {
-    return BoundingBox.create(player.origin_type, player.x+0.5, player.y-0.5, 0.5, 0.5, player.rotation);;
+    return BoundingBox.create(player.origin_type, player.x+0.5, player.y+0.5, 0.5, 0.5, player.rotation);;
+}
+
+function drawPlayer(posX, posY, color) 
+{   
+    posX = (posX * w) + (w / 2);
+    posY = (posY * h) + (h / 2);
+    var radius = w/4;
+    
+    ctx.beginPath();
+    ctx.arc(posX, posY, radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(posX, posY, radius / 10, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'red';
+    ctx.fill();
+    
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#003300';
+    ctx.stroke();
 }
 
 function drawBB(player, other) 
