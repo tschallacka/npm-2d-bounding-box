@@ -1,9 +1,15 @@
 let Vector2D = require('vector2d').Vector;
 
-module.exports = class Box 
+class Box 
 {
 	constructor(vector2d_point1, vector2d_point2, vector2d_point3, vector2d_point4) 
 	{
+	    /** Allow for quick cloning to save 
+	     * on calculations
+	     */
+	    if(vector2d_point1 === Box.CLONE_MARKER) {
+	        return;
+	    }
 		if(!(
 			vector2d_point1 instanceof Vector2D &&
 			vector2d_point2 instanceof Vector2D &&
@@ -22,7 +28,21 @@ module.exports = class Box
 		this.normal2 = vector2d_point3.clone().subtract(vector2d_point2).normalize();
 		this.normal3 = vector2d_point4.clone().subtract(vector2d_point3).normalize();
 		this.normal4 = vector2d_point1.clone().subtract(vector2d_point4).normalize();
-	}	
+	}
+	
+	clone() 
+	{
+	    let box = new Box(Box.CLONE_MARKER);
+	    box.point1 = this.point1.clone();
+	    box.point2 = this.point2.clone();
+	    box.point3 = this.point3.clone();
+	    box.point4 = this.point4.clone();  
+        box.normal1 = this.normal1.clone();
+        box.normal2 = this.normal2.clone();
+        box.normal3 = this.normal3.clone();
+        box.normal4 = this.normal4.clone();
+	    return box;
+	}
 	
 	/**
 	 * returns a new Box based on this box, rotated around the given points.
@@ -71,3 +91,5 @@ module.exports = class Box
 		return [this.normal1.clone(), this.normal2.clone(), this.normal3.clone(), this.normal4.clone()];
 	}	
 }
+Box.CLONE_MARKER = 42;
+module.exports = Box;

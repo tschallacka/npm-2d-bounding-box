@@ -6,6 +6,9 @@ class BoundingBox
 {
     constructor(min_x, min_y, max_x, max_y, origin, degrees) 
     {
+        if(min_x === BoundingBox.CLONE_MARKER) {
+            return;
+        }
         this.min_x = min_x < max_x ? min_x : max_x;
         this.max_x = min_x > max_x ? min_x : max_x;
         this.min_y = min_y < max_y ? min_y : max_y;
@@ -22,25 +25,25 @@ class BoundingBox
                 case BoundingBox.ORIGIN_CENTER:
                     this.setOriginVector(new Vector2D(this.min_x + ((this.max_x - this.min_x) / 2),this.min_y + ((this.max_y - this.min_y) / 2)));
                     break;
-                case BoundingBox.ORIGIN_LEFT_BOTTOM:
+                case BoundingBox.ORIGIN_LEFT_TOP:
                     this.setOriginVector(new Vector2D(this.min_x, this.min_y));
                     break;
-                case BoundingBox.ORIGIN_CENTER_BOTTOM:
+                case BoundingBox.ORIGIN_CENTER_TOP:
                     this.setOriginVector(new Vector2D(this.min_x + ((this.max_x - this.min_x) / 2), this.min_y));
                     break;
-                case BoundingBox.ORIGIN_RIGHT_BOTTOM:
-                    this.setOriginVector(new Vector2D(this.max_x, this.min_y + ((this.max_y - this.min_y) / 2)));
+                case BoundingBox.ORIGIN_RIGHT_TOP:
+                    this.setOriginVector(new Vector2D(this.max_x, this.min_y));
                     break;
                 case BoundingBox.ORIGIN_LEFT_CENTER:
                     this.setOriginVector(new Vector2D(this.min_x, this.min_y + ((this.max_y - this.min_y) / 2)));
                     break;
-                case BoundingBox.ORIGIN_LEFT_TOP:
+                case BoundingBox.ORIGIN_LEFT_BOTTOM:
                     this.setOriginVector(new Vector2D(this.min_x, this.max_y));
                     break;                
-                case BoundingBox.ORIGIN_CENTER_TOP:
+                case BoundingBox.ORIGIN_CENTER_BOTTOM:
                     this.setOriginVector(new Vector2D(this.min_x + ((this.max_x - this.min_x) / 2), this.max_y));
                     break;                
-                case BoundingBox.ORIGIN_RIGHT_TOP:
+                case BoundingBox.ORIGIN_RIGHT_BOTTOM:
                     this.setOriginVector(new Vector2D(this.max_x, this.max_y));
                     break;
                 case BoundingBox.ORIGIN_RIGHT_CENTER:
@@ -48,7 +51,33 @@ class BoundingBox
                     break;
             }
         }
-		
+        this.outer_min_x = this.min_x;
+        this.outer_min_y = this.min_y;
+        this.outer_max_x = this.max_x;
+        this.outer_max_y = this.max_y;
+        
+        let box = this.getBox();
+        if(this.degrees != 0) {
+            let points = box.getPoints();
+            points.forEach((point, index) => {
+                let x = point.getX();
+                let y = point.getY();
+                if(x < this.outer_min_x) {
+                    this.outer_min_x = x;
+                }
+                if(x > this.outer_max_x) {
+                    this.outer_max_x = x;
+                }
+                if(y < this.outer_min_y) {
+                    this.outer_min_y = y;
+                }
+                if(y > this.outer_max_y) {
+                    this.outer_max_x = y;
+                }
+            });
+        }
+        
+        
     }
 
     static create(origin_location, pos_x, pos_y, width, height, rotation_in_degrees) 
@@ -61,7 +90,7 @@ class BoundingBox
             
             return new BoundingBox(pos_x - x_difference, pos_y - y_difference,
                                    pos_x + new_width, pos_y + new_height,
-                                   BoundingBox.ORIGIN_MANUAL, rotation)
+                                   BoundingBox.ORIGIN_MANUAL, rotation_in_degrees)
             
         }
         if(isNaN(origin_location) || origin_location > 9 || origin_location < 1) {
@@ -76,42 +105,42 @@ class BoundingBox
             case BoundingBox.ORIGIN_CENTER:
                 return new BoundingBox(pos_x - half_width, pos_y - half_height,
                                        pos_x + half_width, pos_y + half_height, 
-                                       origin_location);
+                                       origin_location, rotation_in_degrees);
             case BoundingBox.ORIGIN_LEFT_BOTTOM:
                 return new BoundingBox(pos_x, pos_y - height,
                         pos_x + width, pos_y, 
-                        origin_location);
+                        origin_location, rotation_in_degrees);
             case BoundingBox.ORIGIN_CENTER_BOTTOM:
                 return new BoundingBox(pos_x - half_width, pos_y - height,
                         pos_x + half_width, pos_y, 
-                        origin_location);
+                        origin_location, rotation_in_degrees);
             case BoundingBox.ORIGIN_RIGHT_BOTTOM:
                 return new BoundingBox(pos_x - width, pos_y - height,
                         pos_x, pos_y, 
-                        origin_location);
+                        origin_location, rotation_in_degrees);
             case BoundingBox.ORIGIN_LEFT_CENTER:
                 return new BoundingBox(pos_x, pos_y - half_height,
-                                       pos_x + width, pos_y + half_height, 
-                                       origin_location);
+                       pos_x + width, pos_y + half_height, 
+                       origin_location, rotation_in_degrees);
             case BoundingBox.ORIGIN_LEFT_TOP:
                 return new BoundingBox(pos_x, pos_y,
                         pos_x + width, pos_y + height, 
-                        origin_location);
+                        origin_location, rotation_in_degrees);
                 
             case BoundingBox.ORIGIN_CENTER_TOP:
                 return new BoundingBox(pos_x - half_width, pos_y,
                         pos_x + half_width, pos_y + height, 
-                        origin_location);
+                        origin_location, rotation_in_degrees);
                 
             case BoundingBox.ORIGIN_RIGHT_TOP:
                 return new BoundingBox(pos_x - width, pos_y,
                         pos_x, pos_y + height, 
-                        origin_location); 
+                        origin_location, rotation_in_degrees); 
                 
             case BoundingBox.ORIGIN_RIGHT_CENTER:
                 return new BoundingBox(pos_x - width, pos_y - half_height,
-                                       pos_x, pos_y + half_height, 
-                                       origin_location);
+                       pos_x, pos_y + half_height, 
+                       origin_location, rotation_in_degrees);
         }
     }
     
@@ -152,27 +181,38 @@ class BoundingBox
         }
     }
 
-	intersects_basic(bounding_box) {
+    /**
+     * Simple method to check if the outer boxes intersect.
+     * If they don't we're not going to waste CPU time on doing
+     * difficult calculations.
+     */
+	intersects_basic(bounding_box) 
+	{
 		return ! ( 
-	                bounding_box.min_x > this.max_x 
-	             || bounding_box.max_x < this.min_x 
-	             || bounding_box.max_y < this.min_y 
-	             || bounding_box.min_y > this.max_y
+	                bounding_box.outer_min_x > this.outer_max_x 
+	             || bounding_box.outer_max_x < this.outer_min_x 
+	             || bounding_box.outer_max_y < this.outer_min_y 
+	             || bounding_box.outer_min_y > this.outer_max_y
 	         );
 	}    
 
     intersects(bounding_box) 
     {
         this.check(bounding_box);
-		if((!this.getDegrees() && !bounding_box.getDegrees()) || (this.getDegrees() === 180 && bounding_box.getDegrees() === 180)) {
-	        return this.intersects_basic(bounding_box);
-		}
+        if(!this.intersects_basic(bounding_box)) {
+            return false;
+        }
+		return this.intersects_rotated(bounding_box);
     }
 
+    /**
+     * CPU and more RAM intensive method of calculating the intersection.
+     */
 	intersects_rotated(bounding_box) 
 	{
-		let box = this.getBox();
-		let other_box = bounding_box.getBox();
+	    
+		let box = this.actual_box;
+		let other_box = bounding_box.actual_box;
 		let normals = box.getNormals();
 		let other_normals = other_box.getNormals();
 		
@@ -188,23 +228,38 @@ class BoundingBox
 		let result_S2 = minmax(other_box, other_normals[0]);
 		 
 		let separate_P = result_P1.max_proj < result_P2.min_proj || 
-		                         result_P2.max_proj < result_P1.min_proj
+		                         result_P2.max_proj < result_P1.min_proj;
 		let separate_Q = result_Q1.max_proj < result_Q2.min_proj || 
-		                         result_Q2.max_proj < result_Q1.min_proj
+		                         result_Q2.max_proj < result_Q1.min_proj;
 		let separate_R = result_R1.max_proj < result_R2.min_proj || 
-		                         result_R2.max_proj < result_R1.min_proj
+		                         result_R2.max_proj < result_R1.min_proj;
 		let separate_S = result_S1.max_proj < result_S2.min_proj || 
-		                         result_S2.max_proj < result_S1.min_proj
+		                         result_S2.max_proj < result_S1.min_proj;
+		/**
+		 * Helping to clean the RAM.
+		 */
+		box = null;
+		other_box = null;
+		normals = null;
+		other_normals = null;
+		result_P1 = null;
+		result_P2 = null;
+		result_Q1 = null;
+		result_Q2 = null;
+		
 		return !(separate_P || separate_Q || separate_R || separate_S)
 	}
 	
 	getBox() 
 	{
-		let box = new Box(...this.getPoints());
-		if(this.degrees && this.degrees > 0 || this.degrees < 0) {
-		    box = box.rotate(this.getOriginVector(), this.degrees)
-		}
-		return box;
+	    if(!this.actual_box) {
+    	    let box = new Box(...this.getPoints());
+    		if(this.degrees && this.degrees > 0 || this.degrees < 0) {
+    		    box = box.rotate(this.getOriginVector(), this.degrees)
+    		}
+    		this.actual_box = box;
+	    }
+	    return this.actual_box.clone();
 	}
 	
 	/**
@@ -212,7 +267,7 @@ class BoundingBox
 	 */
 	getOriginVector() 
 	{
-	    return this.origin_location;
+	    return this.origin_location.clone();
 	}
 	
 	/**
@@ -228,11 +283,12 @@ class BoundingBox
 	
 	getNormals() 
 	{
-		return this.getBox().getNormals();
+		return this.actual_box.getNormals();
 	}
+	
 	getRotatedPoints() 
 	{
-	    return this.getBox().rotate(this.getOriginVector(), this.degrees).getPoints();
+	    return this.actual_box.getPoints();
 	}
 	
 	drawOnCanvas(ctx, multiplier_width, multiplier_height, boolean_fill, line_width, line_color, fill_color) 
@@ -265,32 +321,26 @@ class BoundingBox
 			new Vector2D(this.getMinX(), this.getMaxY()),
 		];
 		return points;
-	}    
-	
-    expand(bounding_box) 
-    {
-        this.check(bounding_box);
-        
-        if(bounding_box.min_x < this.min_x) {
-            this.min_x = bounding_box.min_x;
-        }
-        if(bounding_box.min_y < this.min_y) {
-            this.min_y = bounding_box.min_y;
-        }
-        if(bounding_box.max_x > this.max_x) {
-            this.max_x = bounding_box.max_x;
-        }
-        if(bounding_box.max_y > this.max_y) {
-            this.max_y = bounding_box.max_y;
-        }
-    }
+	}
     
     clone() 
     {
+        let box = new BoundingBox(BoundingBox.CLONE_MARKER);
+        box.min_x = this.min_x;
+        box.min_y = this.min_y;
+        box.max_x = this.max_x;
+        box.max_y = this.max_y;
+        box.actual_box = this.getBox();
+        box.origin_location = this.getOriginVector();
+        box.outer_min_x = this.outer_min_x;
+        box.outer_min_y = this.outer_min_y;
+        box.outer_max_x = this.outer_max_x;
+        box.outer_max_y = this.outer_max_y;
+        box.origin = this.origin;
         return new BoundingBox(this.min_x, this.min_y, this.max_x, this.max_y, this.origin);
     }
 }
-
+BoundingBox.CLONE_MARKER = "Magic";
 BoundingBox.ORIGIN_CENTER = 1;
 BoundingBox.ORIGIN_LEFT_BOTTOM = 2;
 BoundingBox.ORIGIN_RIGHT_BOTTOM = 3;

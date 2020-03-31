@@ -43,19 +43,25 @@ document.body.addEventListener('input', (e) => {
     let classlist = event.target.classList;
     if (classlist.contains("rotation_setting")) {
         player.rotation = e.target.value;
+        document.getElementById('slider-value').innerText = e.target.value+" degrees";
     }
 });
 document.body.addEventListener("click",  (event) => {
     let classlist = event.target.classList;
     if (classlist.contains("origin_change")) {
         player.origin_type = BoundingBox[event.target.innerText];
+        let current_active = document.querySelector('.origin_change.active');
+        if(current_active) {
+            current_active.classList.remove('active');
+        }
+        event.target.classList.add("active");
     }
     if(classlist.contains('switch_player')) {
         player = (player === player1 ? player2 : player1);
         document.getElementById('rotation_setting').value = player.rotation;
+        document.getElementById('slider-value').innerText = player.rotation + " degrees";
     }
-    
-  });
+});
 
 let UP=38,DOWN=40,RIGHT=39,LEFT=37;
 window.addEventListener('keydown', (e) => {
